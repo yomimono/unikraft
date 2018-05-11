@@ -35,7 +35,6 @@ CXXFLAGS-$(CONFIG_OPTIMIZE_DEADELIM)      += -fdata-sections -ffunction-sections
 LDFLAGS-$(CONFIG_OPTIMIZE_DEADELIM)       += -Wl,--gc-sections
 
 # LTO requires the compiler flags to be handed over also for linking
-CFLAGS-$(CONFIG_OPTIMIZE_LTO)             += -flto
 CXXFLAGS-$(CONFIG_OPTIMIZE_LTO)           += -flto
 LIBLDFLAGS-$(CONFIG_OPTIMIZE_LTO)         += $(CFLAGS) $(CFLAGS-y)
 LDFLAGS-$(CONFIG_OPTIMIZE_LTO)            += $(CFLAGS) $(CFLAGS-y)
