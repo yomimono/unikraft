@@ -1,0 +1,32 @@
+opam-version: "1.2"
+name: "xenplat"
+version: "dev"
+maintainer: "mirageos-devel@lists.openmirage.org"
+authors: "Unikraft Team"
+homepage: "https://wiki.xen.org/Unikraft"
+bug-reports: "https://github.com/mirage/mirage-xenplat/issues"
+license: "BSD"
+dev-repo: "https://github.com/mirage/mirage-xenplat"
+depends: [
+  "conf-pkg-config"
+]
+build: [
+  [make "libnolibc"]
+  [make "libxenplat"]
+  [make "libukargparse"]
+  [make "libukboot"]
+  [make "libukdebug"]
+  [make "libukalloc"]
+  [make "libukallocbbuddy"]
+  [make "libuksched"]
+  [make "libukschedcoop"]
+  [make "libuklock"]
+]
+install: [
+  ["./install.sh"]
+]
+remove: [
+  ["rm" "-r"
+    "%{prefix}%/lib/pkgconfig/libxenplat.pc"
+  ]
+]
