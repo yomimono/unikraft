@@ -1,0 +1,11 @@
+prefix=${pcfiledir}/../..
+exec_prefix=${prefix}
+includedir=${prefix}/include/xenplat
+libdir=${exec_prefix}/lib
+
+Name: xenplat
+Version: 0.10
+URL: http://wiki.xen.org/wiki/Unikraft
+Description: Xen platform support via Unikraft
+Cflags: -isystem${includedir} -isystem${includedir}/plat/xen/include -isystem${includedir}/unikraft-misc-includes @ARCH_CFLAGS@ -nostdinc -isystem@GCC_INSTALL@include -U__linux__ -U__FreeBSD__ -U__sun__ -U__linux -D__MINIOS__ -D__X86_64__
+Libs: -L${libdir}/xenplat -lxenplat -T${libdir}/xenplat/link64.ld @ARCH_LDFLAGS@
