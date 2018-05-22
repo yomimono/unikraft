@@ -42,6 +42,8 @@
 extern "C" {
 #endif
 
+#define NL_ARGMAX 9
+
 #define INT8_MIN     __S8_MIN
 #define INT8_MAX     __S8_MAX
 #define UINT8_MAX    __U8_MAX
