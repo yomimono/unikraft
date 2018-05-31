@@ -19,6 +19,12 @@ cp libxenplat.a ${DESTLIB}/libxenplat.a
 ar rcs libukalloc.a build/libukalloc/*.o
 cp libukalloc.a ${DESTLIB}/libukalloc.a
 
+# scheduler
+ar rcs libsched.a build/libsched/*.o
+ar rcs libschedcoop.a build/libschedcoop/*.o
+cp libsched.a ${DESTLIB}/libsched.a
+cp libschedcoop.a ${DESTLIB}/libschedcoop.a
+
 # xen headers
 UNIKRAFT_MISC=unikraft-misc-includes
 mkdir -p ${DESTINC}/plat/xen/include
@@ -31,6 +37,8 @@ for f in ${UNIKRAFT_MISC_INCLUDES}; do
 done
 cp -r include/uk ${DESTINC}/uk
 cp -r lib/ukalloc/include/uk ${DESTINC}/uk
+cp -r lib/uksched/include/uk ${DESTINC}/uk
+cp -r lib/ukschedcoop/include/uk ${DESTINC}/uk
 
 ARCH_CFLAGS="-m64 -mno-red-zone -fno-reorder-blocks -fno-asynchronous-unwind-tables"
 # super portable, no problem (uh, TODO)

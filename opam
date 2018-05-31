@@ -13,6 +13,8 @@ depends: [
 build: [
   [make "libxenplat"]
   [make "libukalloc"]
+  [make "libuksched"]
+  [make "libukschedcoop"]
 ]
 install: [
   ["./install.sh"]
