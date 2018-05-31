@@ -30,6 +30,7 @@ for f in ${UNIKRAFT_MISC_INCLUDES}; do
     cp lib/nolibc/include/${f} ${DESTINC}/${UNIKRAFT_MISC}/${f}
 done
 cp -r include/uk ${DESTINC}/uk
+cp -r lib/ukalloc/include/uk ${DESTINC}/uk
 
 ARCH_CFLAGS="-m64 -mno-red-zone -fno-reorder-blocks -fno-asynchronous-unwind-tables"
 # super portable, no problem (uh, TODO)
