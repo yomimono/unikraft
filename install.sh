@@ -28,10 +28,10 @@ cp libukschedcoop.a ${DESTLIB}/libukschedcoop.a
 # xen headers
 UNIKRAFT_MISC=unikraft-misc-includes
 mkdir -p ${DESTINC}/plat/xen/include
-mkdir -p ${DESTINC}/${UNIKRAFT_MISC}
+mkdir -p ${DESTINC}/${UNIKRAFT_MISC}/sys
 cp build/include/uk/_config.h ${DESTINC}/_config.h
 cp -r plat/xen/include ${DESTINC}/plat/xen/
-UNIKRAFT_MISC_INCLUDES="inttypes.h limits.h stdint.h"
+UNIKRAFT_MISC_INCLUDES="inttypes.h limits.h stdint.h sys/types.h"
 for f in ${UNIKRAFT_MISC_INCLUDES}; do
     cp lib/nolibc/include/${f} ${DESTINC}/${UNIKRAFT_MISC}/${f}
 done
