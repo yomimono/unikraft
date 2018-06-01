@@ -29,13 +29,13 @@ cp libukschedcoop.a ${DESTLIB}/libukschedcoop.a
 UNIKRAFT_MISC=unikraft-misc-includes
 mkdir -p ${DESTINC}/plat/xen/include
 mkdir -p ${DESTINC}/${UNIKRAFT_MISC}
-cp build/include/uk/_config.h ${DESTINC}/_config.h
 cp -r plat/xen/include ${DESTINC}/plat/xen/
 UNIKRAFT_MISC_INCLUDES="errno.h inttypes.h limits.h stdint.h"
 for f in ${UNIKRAFT_MISC_INCLUDES}; do
     cp lib/nolibc/include/${f} ${DESTINC}/${UNIKRAFT_MISC}/${f}
 done
 cp -r include/uk ${DESTINC}/uk
+cp build/include/uk/_config.h ${DESTINC}/uk/_config.h
 cp -r lib/ukalloc/include/uk/*.h ${DESTINC}/uk/
 cp -r lib/uksched/include/uk/*.h ${DESTINC}/uk/
 cp -r lib/ukschedcoop/include/uk/*.h ${DESTINC}/uk/
