@@ -30,18 +30,25 @@ UNIKRAFT_MISC=unikraft-misc-includes
 mkdir -p ${DESTINC}/plat/xen/include
 mkdir -p ${DESTINC}/${UNIKRAFT_MISC}
 cp -r plat/xen/include ${DESTINC}/plat/xen/
-UNIKRAFT_MISC_INCLUDES="assert.h errno.h inttypes.h limits.h stdint.h"
+UNIKRAFT_MISC_INCLUDES="errno.h inttypes.h limits.h stdint.h"
 for f in ${UNIKRAFT_MISC_INCLUDES}; do
     cp lib/nolibc/include/${f} ${DESTINC}/${UNIKRAFT_MISC}/${f}
 done
+# just get all of the platform headers
 cp -r include/uk ${DESTINC}/uk
+
+# include the config we generated from .config
+# ideally we'd check on some arch/platform stuff first and
+# substitute as appropriate
 cp build/include/uk/_config.h ${DESTINC}/uk/_config.h
+
+# headers for all libraries go in uk/
 cp -r lib/ukalloc/include/uk/*.h ${DESTINC}/uk/
 cp -r lib/uksched/include/uk/*.h ${DESTINC}/uk/
 cp -r lib/ukschedcoop/include/uk/*.h ${DESTINC}/uk/
 
-ARCH_CFLAGS="-m64 -mno-red-zone -fno-reorder-blocks -fno-asynchronous-unwind-tables"
 # super portable, no problem (uh, TODO)
+ARCH_CFLAGS="-m64 -mno-red-zone -fno-reorder-blocks -fno-asynchronous-unwind-tables"
 GCC_INSTALL=$(LANG=c gcc -print-search-dirs | sed -n -e 's/install: \(.*\)/\1/p')
 
 # pkg-config
