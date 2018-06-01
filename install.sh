@@ -20,10 +20,10 @@ ar rcs libukalloc.a build/libukalloc/*.o
 cp libukalloc.a ${DESTLIB}/libukalloc.a
 
 # scheduler
-ar rcs libsched.a build/libsched/*.o
-ar rcs libschedcoop.a build/libschedcoop/*.o
-cp libsched.a ${DESTLIB}/libsched.a
-cp libschedcoop.a ${DESTLIB}/libschedcoop.a
+ar rcs libuksched.a build/libuksched/*.o
+ar rcs libukschedcoop.a build/libukschedcoop/*.o
+cp libuksched.a ${DESTLIB}/libuksched.a
+cp libukschedcoop.a ${DESTLIB}/libukschedcoop.a
 
 # xen headers
 UNIKRAFT_MISC=unikraft-misc-includes
@@ -36,9 +36,9 @@ for f in ${UNIKRAFT_MISC_INCLUDES}; do
     cp lib/nolibc/include/${f} ${DESTINC}/${UNIKRAFT_MISC}/${f}
 done
 cp -r include/uk ${DESTINC}/uk
-cp -r lib/ukalloc/include/uk ${DESTINC}/uk
-cp -r lib/uksched/include/uk ${DESTINC}/uk
-cp -r lib/ukschedcoop/include/uk ${DESTINC}/uk
+cp -r lib/ukalloc/include/uk/*.h ${DESTINC}/uk/
+cp -r lib/uksched/include/uk/*.h ${DESTINC}/uk/
+cp -r lib/ukschedcoop/include/uk/*.h ${DESTINC}/uk/
 
 ARCH_CFLAGS="-m64 -mno-red-zone -fno-reorder-blocks -fno-asynchronous-unwind-tables"
 # super portable, no problem (uh, TODO)
