@@ -30,7 +30,7 @@ UNIKRAFT_MISC=unikraft-misc-includes
 mkdir -p ${DESTINC}/plat/xen/include
 mkdir -p ${DESTINC}/${UNIKRAFT_MISC}
 cp -r plat/xen/include ${DESTINC}/plat/xen/
-UNIKRAFT_MISC_INCLUDES="errno.h inttypes.h limits.h stdint.h"
+UNIKRAFT_MISC_INCLUDES="assert.h errno.h inttypes.h limits.h stdint.h"
 for f in ${UNIKRAFT_MISC_INCLUDES}; do
     cp lib/nolibc/include/${f} ${DESTINC}/${UNIKRAFT_MISC}/${f}
 done
