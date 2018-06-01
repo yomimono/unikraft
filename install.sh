@@ -42,6 +42,9 @@ cp -r include/uk ${DESTINC}/uk
 # substitute as appropriate
 cp build/include/uk/_config.h ${DESTINC}/uk/_config.h
 
+# need to pull just the header from assert (all code is inlined there)
+cp lib/ukdebug/include/uk/assert.h ${DESTINC}/uk/assert.h
+
 # headers for all libraries go in uk/
 cp -r lib/ukalloc/include/uk/*.h ${DESTINC}/uk/
 cp -r lib/uksched/include/uk/*.h ${DESTINC}/uk/
