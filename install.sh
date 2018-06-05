@@ -29,8 +29,10 @@ cp libukschedcoop.a ${DESTLIB}/libukschedcoop.a
 UNIKRAFT_MISC=unikraft-misc-includes
 mkdir -p ${DESTINC}/plat/xen/include
 mkdir -p ${DESTINC}/${UNIKRAFT_MISC}
+# not sure this is a good idea. it's for types.h
+mkdir -p ${DESTINC}/${UNIKRAFT_MISC}/sys
 cp -r plat/xen/include ${DESTINC}/plat/xen/
-UNIKRAFT_MISC_INCLUDES="errno.h inttypes.h limits.h stdint.h"
+UNIKRAFT_MISC_INCLUDES="errno.h inttypes.h limits.h stdint.h sys/types.h"
 for f in ${UNIKRAFT_MISC_INCLUDES}; do
     cp lib/nolibc/include/${f} ${DESTINC}/${UNIKRAFT_MISC}/${f}
 done
