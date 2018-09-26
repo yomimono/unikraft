@@ -45,6 +45,9 @@
 #include <xen-x86/mm_pv.h>
 #endif
 
+//needed for uint8_t, etc
+#include <stdint.h>
+
 /*
  * Physical address space usage:
  *
