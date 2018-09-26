@@ -28,6 +28,7 @@ cp libukschedcoop.a ${DESTLIB}/libukschedcoop.a
 # xen headers
 UNIKRAFT_MISC=unikraft-misc-includes
 mkdir -p ${DESTINC}/plat/xen/include
+mkdir -p ${DESTINC}/plat/common/include
 mkdir -p ${DESTINC}/${UNIKRAFT_MISC}
 UNIKRAFT_MISC_INCLUDES="errno.h inttypes.h limits.h stdint.h"
 for f in ${UNIKRAFT_MISC_INCLUDES}; do
@@ -38,6 +39,9 @@ cp -r include/uk ${DESTINC}/uk
 
 # get everything in plat/xen/include
 cp -r plat/xen/include ${DESTINC}/plat/xen/
+
+# also everything in plat/common/include
+cp -r plat/common/include ${DESTINC}/plat/common/
 
 # include the config we generated from .config
 # ideally we'd check on some arch/platform stuff first and
