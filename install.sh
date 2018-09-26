@@ -36,6 +36,9 @@ done
 # just get all of the platform headers
 cp -r include/uk ${DESTINC}/uk
 
+# get everything in plat/xen/include
+cp -r plat/xen/include ${DESTINC}/plat/xen/
+
 # include the config we generated from .config
 # ideally we'd check on some arch/platform stuff first and
 # substitute as appropriate
