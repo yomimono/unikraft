@@ -226,7 +226,7 @@ static ssize_t bbuddy_availmem(struct uk_alloc *a)
 #endif
 
 #if defined(CONFIG_LIBUKALLOC_IFPAGES) && defined(CONFIG_LIBUKALLOC_IFSTATS)
-static int bbuddy_availmem_pages(struct uk_alloc *a)
+static unsigned long bbuddy_availmem_pages(struct uk_alloc *a)
 {
 	struct uk_bbpalloc *b;
 
