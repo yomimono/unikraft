@@ -225,6 +225,17 @@ static ssize_t bbuddy_availmem(struct uk_alloc *a)
 }
 #endif
 
+#if defined(CONFIG_LIBUKALLOC_IFPAGES) && defined(CONFIG_LIBUKALLOC_IFSTATS)
+static int bbuddy_availmem_pages(struct uk_alloc *a)
+{
+	struct uk_bbpalloc *b;
+
+	UK_ASSERT(a != NULL);
+	b = (struct uk_bbpalloc *)&a->priv;
+	return (ssize_t) b->nr_free_pages;
+}
+#endif
+
 /*********************
  * BINARY BUDDY PAGE ALLOCATOR
  */
@@ -485,6 +496,9 @@ struct uk_alloc *uk_allocbbuddy_init(void *base, size_t len)
 			     bbuddy_addmem);
 #if CONFIG_LIBUKALLOC_IFSTATS
 	a->availmem = bbuddy_availmem;
+#endif
+#if defined(CONFIG_LIBUKALLOC_IFSTATS) && defined(CONFIG_LIBUKALLOC_IFPAGES)
+	a->availmem_pages = bbuddy_availmem_pages;
 #endif
 
 	/* add left memory - ignore return value */
