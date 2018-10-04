@@ -232,7 +232,20 @@ static unsigned long bbuddy_availmem_pages(struct uk_alloc *a)
 
 	UK_ASSERT(a != NULL);
 	b = (struct uk_bbpalloc *)&a->priv;
-	return (ssize_t) b->nr_free_pages;
+	return b->nr_free_pages;
+}
+static unsigned long bbuddy_totalmem_pages(struct uk_alloc *a)
+{
+        unsigned long total;
+        struct uk_bbpalloc_memr *this;
+        UK_ASSERT (a != NULL);
+        total = 0;
+        this = ((struct uk_bbpalloc*)(a->priv))->memr_head;
+        while (this != NULL) {
+                total += this->nr_pages;
+                this = this->next;
+        }
+        return total;
 }
 #endif
 
@@ -499,6 +512,7 @@ struct uk_alloc *uk_allocbbuddy_init(void *base, size_t len)
 #endif
 #if defined(CONFIG_LIBUKALLOC_IFSTATS) && defined(CONFIG_LIBUKALLOC_IFPAGES)
 	a->availmem_pages = bbuddy_availmem_pages;
+        a->totalmem_pages = bbuddy_totalmem_pages;
 #endif
 
 	/* add left memory - ignore return value */
