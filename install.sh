@@ -2,6 +2,8 @@
 NAME="xenplat"
 
 #TODO: we assume that we're building for X86_64, which we shouldn't do
+UK_FAMILY=x86
+ARCH=x86_64
 
 prefix=${1:-$PREFIX}
 if [ "$prefix" = "" ]; then
@@ -42,6 +44,9 @@ cp -r plat/xen/include ${DESTINC}/plat/xen/
 
 # also everything in plat/common/include
 cp -r plat/common/include ${DESTINC}/plat/common/
+
+# put all the arch-specific stuff into the common uk/ include directory
+cp -r arch/${UK_FAMILY}/${ARCH}/include/uk ${DESTINC}/
 
 # include the config we generated from .config
 # ideally we'd check on some arch/platform stuff first and
