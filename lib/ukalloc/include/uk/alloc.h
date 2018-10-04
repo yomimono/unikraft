@@ -81,12 +81,12 @@ typedef int   (*uk_alloc_addmem_func_t)
 typedef ssize_t (*uk_alloc_availmem_func_t)
 		(struct uk_alloc *a);
 #endif
-#if defined(CONFIG_LIBUKALLOC_IFSTATS) && defined(CONFIG_LIBUKALLOC_IFPAGES)
+//#if defined(CONFIG_LIBUKALLOC_IFSTATS) && defined(CONFIG_LIBUKALLOC_IFPAGES)
 typedef unsigned long (*uk_alloc_availmem_pages_func_t)
 		(struct uk_alloc *a);
 typedef unsigned long (*uk_alloc_totalmem_pages_func_t)
                 (struct uk_alloc *a);
-#endif
+//#endif
 
 struct uk_alloc {
 	/* memory allocation */
@@ -106,11 +106,11 @@ struct uk_alloc {
 	/* optional interface */
 	uk_alloc_availmem_func_t availmem;
 #endif
-#if defined(CONFIG_LIBUKALLOC_IFPAGES) && defined(CONFIG_LIBUKALLOC_IFSTATS)
+//#if defined(CONFIG_LIBUKALLOC_IFPAGES) && defined(CONFIG_LIBUKALLOC_IFSTATS)
         /* optional interface */
 	uk_alloc_availmem_pages_func_t availmem_pages;
 	uk_alloc_totalmem_pages_func_t totalmem_pages;
-#endif
+//#endif
 	/* optional interface */
 	uk_alloc_addmem_func_t addmem;
 
