@@ -36,7 +36,7 @@
 #ifndef __UK_ALLOC_H__
 #define __UK_ALLOC_H__
 
-#if defined(CONFIG_UKALLOC_IFSTATS)
+#if defined(CONFIG_LIBUKALLOC_IFSTATS)
 #define __NEED_ssize_t
 #endif
 
