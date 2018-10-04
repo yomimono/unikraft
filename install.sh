@@ -14,18 +14,9 @@ DESTLIB=${prefix}/lib/${NAME}
 mkdir -p ${DESTINC} ${DESTLIB}
 
 # xenplat
-ar rcs libxenplat.a build/libxenplat/*.o
+ar rcs libxenplat.a build/libxenplat/*.o build/libukalloc/*.o build/libukallocbbuddy/*.o \
+        build/libuksched/*.o build/libukschedcoop/*.o
 cp libxenplat.a ${DESTLIB}/libxenplat.a
-
-# ukalloc
-ar rcs libukalloc.a build/libukalloc/*.o
-cp libukalloc.a ${DESTLIB}/libukalloc.a
-
-# scheduler
-ar rcs libuksched.a build/libuksched/*.o
-ar rcs libukschedcoop.a build/libukschedcoop/*.o
-cp libuksched.a ${DESTLIB}/libuksched.a
-cp libukschedcoop.a ${DESTLIB}/libukschedcoop.a
 
 # xen headers
 UNIKRAFT_MISC=unikraft-misc-includes
