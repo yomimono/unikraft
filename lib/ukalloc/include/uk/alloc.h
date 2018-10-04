@@ -36,12 +36,11 @@
 #ifndef __UK_ALLOC_H__
 #define __UK_ALLOC_H__
 
-#if defined(CONFIG_LIBUKALLOC_IFSTATS)
 #define __NEED_ssize_t
-#endif
 
 #include <stddef.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <uk/config.h>
