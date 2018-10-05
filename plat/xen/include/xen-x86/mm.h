@@ -276,6 +276,8 @@ static __inline__ paddr_t machine_to_phys(maddr_t machine)
 })
 #define virtual_to_mfn(_virt)	   pte_to_mfn(virtual_to_pte(_virt))
 
+unsigned long allocate_ondemand(unsigned long n, unsigned long align);
+
 void *map_frames_ex(const unsigned long *mfns, unsigned long n,
 		unsigned long stride, unsigned long incr,
 		unsigned long alignment,
