@@ -12,6 +12,7 @@ depends: [
 ]
 build: [
   [make "libxenplat"]
+  [make "libukdebug"]
   [make "libukalloc"]
   [make "libukallocbbuddy"]
   [make "libuksched"]
