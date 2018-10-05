@@ -47,7 +47,11 @@
 
 int in_callback;
 
-void do_hypervisor_callback(struct __regs *regs)
+#ifndef CONFIG_PARAVIRT
+extern shared_info_t shared_info;
+#endif /* !CONFIG_PARAVIRT */
+
+__attribute__((weak)) void do_hypervisor_callback(struct __regs *regs)
 {
 	unsigned long l1, l2, l1i, l2i;
 	unsigned int port;
