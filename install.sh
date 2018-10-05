@@ -14,8 +14,10 @@ DESTLIB=${prefix}/lib/${NAME}
 mkdir -p ${DESTINC} ${DESTLIB}
 
 # xenplat
-ar rcs libxenplat.a build/libxenplat/*.o build/libukalloc/*.o build/libukallocbbuddy/*.o \
-        build/libuksched/*.o build/libukschedcoop/*.o
+ar rcs libxenplat.a build/libxenplat/*.o \
+        build/libukalloc/*.o build/libukallocbbuddy/*.o \
+        build/libuksched/*.o build/libukschedcoop/*.o \
+        build/libukdebug/*.o
 cp libxenplat.a ${DESTLIB}/libxenplat.a
 
 # xen headers
