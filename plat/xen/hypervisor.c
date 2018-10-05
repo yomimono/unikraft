@@ -42,6 +42,11 @@
 #include <uk/arch/lcpu.h>
 #include <uk/arch/atomic.h>
 
+#ifdef CONFIG_UKDEBUG
+#include <uk/assert.h>
+#endif
+
+// TODO revisit: move to evtchn; why cpu param?
 #define active_evtchns(sh, idx)				\
 	((sh)->evtchn_pending[idx] & ~(sh)->evtchn_mask[idx])
 
@@ -50,6 +55,24 @@ int in_callback;
 #ifndef CONFIG_PARAVIRT
 extern shared_info_t shared_info;
 #endif /* !CONFIG_PARAVIRT */
+
+int hvm_get_parameter(int idx, uint64_t *value)
+{
+        struct xen_hvm_param xhv;
+        int ret;
+
+        xhv.domid = DOMID_SELF;
+        xhv.index = idx;
+        ret = HYPERVISOR_hvm_op(HVMOP_get_param, &xhv);
+#ifdef CONFIG_UKDEBUG
+        if(ret < 0)
+                UK_BUG();
+#endif
+
+        *value = xhv.value;
+        return ret;
+}
+
 
 __attribute__((weak)) void do_hypervisor_callback(struct __regs *regs)
 {
