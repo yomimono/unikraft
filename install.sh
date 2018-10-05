@@ -57,6 +57,9 @@ cp -r lib/ukschedcoop/include/uk/*.h ${DESTINC}/uk/
 ARCH_CFLAGS="-m64 -mno-red-zone -fno-reorder-blocks -fno-asynchronous-unwind-tables"
 GCC_INSTALL=$(LANG=c gcc -print-search-dirs | sed -n -e 's/install: \(.*\)/\1/p')
 
+# get the linker script too
+cp plat/xen/x86/link64.lds ${DESTLIB}/
+
 # pkg-config
 libname=lib${NAME}
 sed \
