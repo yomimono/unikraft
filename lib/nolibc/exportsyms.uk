@@ -23,21 +23,21 @@ free
 # sscanf
 vsscanf
 scanf
-sscanf
+# sscanf
 
 # stdio
 stdin
 stdout
 stderr
-vsnprintf
+# vsnprintf
 vsprintf
-snprintf
+# snprintf
 sprintf
-vfprintf
-fprintf
+# vfprintf
+# fprintf
 vprintf
-printf
-fflush
+# printf
+# fflush
 
 # stdlib
 strtoul
@@ -46,21 +46,21 @@ strtoull
 atoi
 
 # string
-memcpy
-memset
-memchr
-memrchr
-memmove
-memcmp
+# memcpy
+# memset
+# memchr
+# memrchr
+# memmove
+# memcmp
 strnlen
-strlen
+# strlen
 strncpy
 strcpy
 strchr
 strrchr
 strchrnul
 strncmp
-strcmp
+# strcmp
 strcspn
 strspn
 strtok
