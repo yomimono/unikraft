@@ -95,12 +95,12 @@ static uint8_t intr_stack[INTR_STACK_SIZE] __attribute__((aligned(16)));
 
 hw_tss tss __attribute__((aligned(16))) = {
 #ifdef __X86_64__
-	.rsp[0] = (unsigned long)&intr_stack[INTR_STACK_SIZE],
+	.rsp0 = (unsigned long)&intr_stack[INTR_STACK_SIZE],
 #else
 	.esp0 = (unsigned long)&intr_stack[INTR_STACK_SIZE],
 	.ss0 = __KERN_DS,
 #endif
-	.iomap_base = X86_TSS_INVALID_IO_BITMAP,
+	.iopb = X86_TSS_INVALID_IO_BITMAP,
 };
 
 static void setup_gate(unsigned int entry, void *addr, unsigned int dpl)
