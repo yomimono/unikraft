@@ -224,6 +224,7 @@ extern pgentry_t page_table_base[];
 #endif
 
 extern unsigned long mfn_zero;
+#ifdef CONFIG_PARAVIRT
 static __inline__ maddr_t phys_to_machine(paddr_t phys)
 {
 	maddr_t machine = pfn_to_mfn(phys >> PAGE_SHIFT);
@@ -237,6 +238,7 @@ static __inline__ paddr_t machine_to_phys(maddr_t machine)
 	phys = (phys << PAGE_SHIFT) | (machine & ~PAGE_MASK);
 	return phys;
 }
+#endif
 
 #define VIRT_START                 ((unsigned long)(__TEXT))
 
