@@ -1,4 +1,5 @@
 /* Included by x86_[32|64].S */
+#include <xen-x86/desc.h>
 
         ELFNOTE(Xen, XEN_ELFNOTE_PHYS32_ENTRY, .long _start)
 .text
