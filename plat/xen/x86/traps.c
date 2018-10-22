@@ -27,9 +27,12 @@
 #include <xen-x86/traps.h>
 #include <xen-x86/hypercall.h>
 #include <uk/print.h>
+#include <uk/assert.h>
 
 #ifndef CONFIG_PARAVIRT
+#include <common/hypervisor.h> //for hvm_get_parameter
 #include <xen-x86/desc.h>
+#include <xen/hvm/params.h>
 #endif
 
 /* Traps used only on Xen */
