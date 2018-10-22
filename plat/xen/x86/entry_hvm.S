@@ -13,12 +13,12 @@ _start:
         mov $page_table_base, %eax
         mov %eax, %cr3
 
-#ifdef __x86_64__               /* EFER.LME = 1 */
+#ifdef __X86_64__               /* EFER.LME = 1 */
         mov $MSR_EFER, %ecx
         rdmsr
         bts $_EFER_LME, %eax
         wrmsr
-#endif /* __x86_64__ */
+#endif /* __X86_64__ */
 
         mov %cr0, %eax
         or $X86_CR0_PG, %eax
@@ -28,7 +28,7 @@ _start:
 
         /* Load code segment. */
         ljmp $__KERN_CS, $1f
-#ifdef __x86_64__
+#ifdef __X86_64__
         .code64
 #endif
 
@@ -77,7 +77,7 @@ page_table_l1:
 page_table_l2:
         /* Map the first 1GB of memory (on 32 bit 16MB less). */
         PTE(page_table_l1 + L2_PROT)
-#ifdef __x86_64__
+#ifdef __X86_64__
         PTES L2_PROT|_PAGE_PSE, 0x00200000, 0x00200000, 1, L2_PAGETABLE_ENTRIES
 #else
         /* At 3f000000 virtual kernel area is starting. */
