@@ -28,6 +28,10 @@
 #include <xen-x86/hypercall.h>
 #include <uk/print.h>
 
+#ifndef CONFIG_PARAVIRT
+#include <xen-x86/desc.h>
+#endif
+
 /* Traps used only on Xen */
 
 DECLARE_TRAP_EC(coproc_seg_overrun, "coprocessor segment overrun")
