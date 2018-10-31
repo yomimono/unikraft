@@ -7,5 +7,5 @@ Name: xenplat
 Version: 0.10
 URL: http://wiki.xen.org/wiki/Unikraft
 Description: Xen platform support via Unikraft
-Cflags: -isystem${includedir} -isystem${includedir}/plat/common/include -isystem${includedir}/plat/xen/include -isystem${includedir}/unikraft-misc-includes @ARCH_CFLAGS@ -fno-builtin-printf -nostdinc -isystem@GCC_INSTALL@include -U__linux__ -U__FreeBSD__ -U__sun__ -U__linux -D__MINIOS__ -D__X86_64__
+Cflags: -isystem${includedir} -isystem${includedir}/plat/common/include -isystem${includedir}/plat/xen/include -isystem${includedir}/unikraft-misc-includes @ARCH_CFLAGS@ -fno-builtin-printf -nostdinc -isystem@GCC_INSTALL@include -U__linux__ -U__FreeBSD__ -U__sun__ -U__linux -D__MINIOS__ -D__X86_64__ -DCONFIG_PARAVIRT
 Libs: -L${libdir}/xenplat -lxenplat -T${libdir}/xenplat/link64.lds @ARCH_LDFLAGS@
