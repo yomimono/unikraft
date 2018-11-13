@@ -97,11 +97,11 @@ static void main_thread_func(void *arg)
 #endif /* CONFIG_LIBLWIP */
 
 #if CONFIG_LIBUKBOOT_BANNER
-	printf("Welcome to  _ __             _____\n");
-	printf(" __ _____  (_) /__ _______ _/ _/ /_\n");
-	printf("/ // / _ \\/ /  '_// __/ _ `/ _/ __/\n");
-	printf("\\_,_/_//_/_/_/\\_\\/_/  \\_,_/_/ \\__/\n");
-	printf("%35s\n",
+	uk_pr_info("Welcome to  _ __             _____\n");
+	uk_pr_info(" __ _____  (_) /__ _______ _/ _/ /_\n");
+	uk_pr_info("/ // / _ \\/ /  '_// __/ _ `/ _/ __/\n");
+	uk_pr_info("\\_,_/_//_/_/_/\\_\\/_/  \\_,_/_/ \\__/\n");
+	uk_pr_info("%35s\n",
 	       STRINGIFY(UK_CODENAME) " " STRINGIFY(UK_FULLVERSION));
 #endif
 
