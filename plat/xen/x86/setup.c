@@ -185,6 +185,7 @@ void _libxenplat_x86entry(void *start_info) __noreturn;
 
 void _libxenplat_x86entry(void *start_info)
 {
+	for(;;);
 	_init_traps();
 	_init_cpufeatures();
 	HYPERVISOR_start_info = (start_info_t *)start_info;
