@@ -8,7 +8,6 @@
         .code32                 /* Always starts in 32bit flat mode. */
 
 .global _libxenplat_start
-.section .text.boot, "ax"
 _libxenplat_start:
         mov $(X86_CR4_PAE | X86_CR4_OSFXSR), %eax
         mov %eax, %cr4
