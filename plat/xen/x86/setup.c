@@ -218,7 +218,6 @@ void _libxenplat_x86entry(void *start_info)
 	prepare_console(); /* enables buffering for console */
 
 	uk_pr_info("Entering from Xen (x86, PV)...\n");
-	for(;;);
 
 	_init_shared_info(); /* remaps shared info */
 
