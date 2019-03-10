@@ -214,6 +214,7 @@ void _libxenplat_x86entry(void *start_info)
 #ifndef CONFIG_PARAVIRT
 	hpc_init();
 #endif
+	HYPERVISOR_console_io(CONSOLEIO_write, strlen("hypercall page mapped\n"), "hypercall page mapped\n");
 	prepare_console(); /* enables buffering for console */
 
 	uk_pr_info("Entering from Xen (x86, PV)...\n");
