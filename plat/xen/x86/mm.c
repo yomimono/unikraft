@@ -46,11 +46,16 @@
 #include <uk/print.h>
 #include <uk/assert.h>
 #ifndef CONFIG_PARAVIRT
-#include <xen-x86/hvm/start_info.h>
+#include <xen/arch-x86/hvm/start_info.h>
+#include <xen/hvm/e820.h>
+#include <x86/cpu.h>
 #endif
 
 #ifdef CONFIG_PARAVIRT
 unsigned long *phys_to_machine_mapping;
+#else
+struct e820entry e820_map[E820_MAX];
+unsigned e820_entries;
 #endif
 unsigned long mfn_zero;
 pgentry_t *pt_base;
@@ -681,9 +686,12 @@ void _init_mem_clear_bootstrap(void)
     if ( (rc = HYPERVISOR_update_va_mapping(0, nullpte, UVMF_INVLPG)) )
 	    uk_pr_err("Unable to unmap NULL page. rc=%d\n", rc);
 #else
+    /*
+     * TODO
 	pgt = get_pgt(__TEXT);
     *pgt = 0;
 	invlpg(__TEXT);
+    */
 #endif
 }
 
@@ -702,7 +710,7 @@ void _init_mem_prepare(unsigned long *start_pfn, unsigned long *max_pfn)
     struct xen_memory_map memmap;
     struct hvm_modlist_entry *modlist;
     int i;
-    unsigned long pfn, max = 0;
+    unsigned long first_free_pfn, last_free_pfn, pfn, max = 0;
 
     pt_base = read_cr3();
     first_free_pfn = 1;
@@ -719,7 +727,7 @@ void _init_mem_prepare(unsigned long *start_pfn, unsigned long *max_pfn)
     if ( ret < 0 )
     {
         uk_pr_err("could not get memory size %d\n", ret);
-        do_exit();
+        ukplat_terminate(UKPLAT_CRASH);
     }
     last_free_pfn = ret;
 
@@ -729,7 +737,7 @@ void _init_mem_prepare(unsigned long *start_pfn, unsigned long *max_pfn)
     if ( ret < 0 )
     {
         uk_pr_err("could not get memory map %d\n", ret);
-        do_exit();
+        ukplat_terminate(UKPLAT_CRASH);
     }
     e820_entries = memmap.nr_entries;
 

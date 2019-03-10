@@ -829,7 +829,11 @@ struct start_info {
     unsigned long first_p2m_pfn;/* 1st pfn forming initial P->M table.    */
     unsigned long nr_p2m_frames;/* # of pfns forming initial P->M table.  */
 };
+#ifdef CONFIG_PARAVIRT
 typedef struct start_info start_info_t;
+#else
+typedef struct hvm_start_info start_info_t;
+#endif
 
 /* New console union for dom0 introduced in 0x00030203. */
 #if __XEN_INTERFACE_VERSION__ < 0x00030203

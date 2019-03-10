@@ -36,8 +36,8 @@
 #ifndef __SETUP_H__
 #define __SETUP_H__
 
-#include <sys/types.h>
-#include <inttypes.h>
+//#include <sys/types.h>
+//#include <inttypes.h>
 #include <xen/xen.h>
 #include <xen/arch-x86/hvm/start_info.h>
 #include <uk/plat/memory.h>

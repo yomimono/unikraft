@@ -94,7 +94,9 @@
 static char cmdline[MAX_CMDLINE_SIZE];
 
 start_info_t *HYPERVISOR_start_info;
+#ifdef CONFIG_PARAVIRT
 shared_info_t *HYPERVISOR_shared_info;
+#endif
 
 /*
  * Just allocate the kernel stack here. SS:ESP is set up to point here
@@ -114,6 +116,7 @@ static inline void _init_traps(void)
 	traps_init();
 }
 
+#ifdef CONFIG_PARAVIRT
 static inline void _init_shared_info(void)
 {
 	int ret;
@@ -126,6 +129,9 @@ static inline void _init_shared_info(void)
 		UK_CRASH("Failed to map shared_info: %d\n", ret);
 	HYPERVISOR_shared_info = (shared_info_t *)_libxenplat_shared_info;
 }
+#else
+static inline void _init_shared_info(void) {}
+#endif
 
 static inline void _init_mem(void)
 {
@@ -179,14 +185,21 @@ void _libxenplat_x86entry(void *start_info)
 
 	_init_shared_info(); /* remaps shared info */
 
+#ifdef CONFIG_PARAVIRT
 	strncpy(cmdline, (char *)HYPERVISOR_start_info->cmd_line,
 		MAX_CMDLINE_SIZE);
+#else
+	strncpy(cmdline, (char *)HYPERVISOR_start_info->cmdline_paddr,
+		MAX_CMDLINE_SIZE);
+#endif
 
 	/* Set up events. */
 	init_events();
 
 	uk_pr_info("    start_info: %p\n", HYPERVISOR_start_info);
+#ifdef CONFIG_PARAVIRT
 	uk_pr_info("   shared_info: %p\n", HYPERVISOR_shared_info);
+#endif
 	uk_pr_info("hypercall_page: %p\n", hypercall_page);
 
 	_init_mem();

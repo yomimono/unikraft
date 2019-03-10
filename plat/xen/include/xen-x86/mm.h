@@ -44,6 +44,10 @@
 
 #ifdef CONFIG_PARAVIRT
 #include <xen-x86/mm_pv.h>
+#else
+#ifndef __ASSEMBLY__
+#include <xen-x86/mm_hvm.h>
+#endif
 #endif
 
 /*

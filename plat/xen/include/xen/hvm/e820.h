@@ -35,4 +35,25 @@
 #define HVM_BELOW_4G_MMIO_LENGTH    ((xen_mk_ullong(1) << 32) - \
                                      HVM_BELOW_4G_MMIO_START)
 
+#define E820_RAM          1
+#define E820_RESERVED     2
+#define E820_ACPI         3
+#define E820_NVS          4
+#define E820_UNUSABLE     5
+#define E820_PMEM         7
+#define E820_TYPES        8
+
+
+struct __packed e820entry {
+    uint64_t addr;
+    uint64_t size;
+    uint32_t type;
+};
+
+/* Maximum number of entries. */
+#define E820_MAX          128
+
+extern struct e820entry e820_map[];
+extern unsigned e820_entries;
+
 #endif /* __XEN_PUBLIC_HVM_E820_H__ */
