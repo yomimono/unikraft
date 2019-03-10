@@ -120,7 +120,13 @@ void hv_console_prepare(void)
 #else
 void hv_console_prepare(void)
 {
-	/* NOT IMPLEMENTED YET */
+	uint64_t evtchn;
+	if (hvm_get_parameter(HVM_PARAM_CONSOLE_PFN, (uint64_t *)&console_ring))
+		UK_BUG();
+	console_ring = mfn_to_virt(console_ring);
+	if (hvm_get_parameter(HVM_PARAM_CONSOLE_EVTCHN, &evtchn))
+		UK_BUG();
+	console_evtchn = evtchn;
 }
 #endif
 
