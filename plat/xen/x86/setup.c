@@ -185,13 +185,13 @@ void _libxenplat_x86entry(void *start_info) __noreturn;
 
 void _libxenplat_x86entry(void *start_info)
 {
-	for(;;);
 	_init_traps();
 	_init_cpufeatures();
 	HYPERVISOR_start_info = (start_info_t *)start_info;
 	prepare_console(); /* enables buffering for console */
 
 	uk_pr_info("Entering from Xen (x86, PV)...\n");
+	for(;;);
 
 	_init_shared_info(); /* remaps shared info */
 
