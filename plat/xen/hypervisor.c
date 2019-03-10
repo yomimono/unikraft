@@ -42,7 +42,7 @@
 #include <uk/arch/lcpu.h>
 #include <uk/arch/atomic.h>
 
-#ifdef CONFIG_UKDEBUG
+#ifdef CONFIG_LIBUKDEBUG
 #include <uk/assert.h>
 #endif
 
@@ -64,7 +64,7 @@ int hvm_get_parameter(int idx, uint64_t *value)
         xhv.domid = DOMID_SELF;
         xhv.index = idx;
         ret = HYPERVISOR_hvm_op(HVMOP_get_param, &xhv);
-#ifdef CONFIG_UKDEBUG
+#ifdef CONFIG_LIBUKDEBUG
         if(ret < 0)
                 UK_BUG();
 #endif
@@ -73,9 +73,33 @@ int hvm_get_parameter(int idx, uint64_t *value)
         return ret;
 }
 
+int hvm_set_parameter(int idx, uint64_t value)
+{
+    struct xen_hvm_param xhv;
+
+    xhv.domid = DOMID_SELF;
+    xhv.index = idx;
+    xhv.value = value;
+    return HYPERVISOR_hvm_op(HVMOP_set_param, &xhv);
+}
+
+shared_info_t *map_shared_info(void *p)
+{
+    struct xen_add_to_physmap xatp;
+
+    xatp.domid = DOMID_SELF;
+    xatp.idx = 0;
+    xatp.space = XENMAPSPACE_shared_info;
+    xatp.gpfn = virt_to_pfn(&shared_info);
+    if ( HYPERVISOR_memory_op(XENMEM_add_to_physmap, &xatp) != 0 )
+        UK_BUG();
+
+    return &shared_info;
+}
 
 __attribute__((weak)) void do_hypervisor_callback(struct __regs *regs)
 {
+#ifdef CONFIG_PARAVIRT
 	unsigned long l1, l2, l1i, l2i;
 	unsigned int port;
 	int cpu = 0;
@@ -105,6 +129,9 @@ __attribute__((weak)) void do_hypervisor_callback(struct __regs *regs)
 	}
 
 	in_callback = 0;
+#else
+    UK_ASSERT(0 && "do_hypervisor_callback should be overriden");
+#endif
 }
 
 void ukplat_lcpu_irqs_handle_pending(void)
