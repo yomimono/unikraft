@@ -87,6 +87,9 @@
 #include <xen-x86/irq.h>
 #include <xen-x86/mm.h>
 #include <xen-x86/setup.h>
+#ifndef CONFIG_PARAVIRT
+#include <xen/memory.h>
+#endif
 #include <xen/arch-x86/cpuid.h>
 #include <xen/arch-x86/hvm/start_info.h>
 
@@ -114,24 +117,30 @@ static inline void _init_traps(void)
 	traps_init();
 }
 
-#ifdef CONFIG_PARAVIRT
 static inline void _init_shared_info(void)
 {
-	int ret;
-	unsigned long pa = HYPERVISOR_start_info->shared_info;
 	extern char _libxenplat_shared_info[__PAGE_SIZE];
+	int ret;
+#ifdef CONFIG_PARAVIRT
+	unsigned long pa = HYPERVISOR_start_info->shared_info;
 
 	if ((ret = HYPERVISOR_update_va_mapping(
 		 (unsigned long)_libxenplat_shared_info, __pte(pa | 7),
 		 UVMF_INVLPG)))
 		UK_CRASH("Failed to map shared_info: %d\n", ret);
-	HYPERVISOR_shared_info = (shared_info_t *)_libxenplat_shared_info;
-}
 #else
-static inline void _init_shared_info(void) {
-	HYPERVISOR_shared_info = (shared_info_t *)map_shared_info(HYPERVISOR_start_info);	
-}
+    struct xen_add_to_physmap xatp;
+
+    xatp.domid = DOMID_SELF;
+    xatp.idx = 0;
+    xatp.space = XENMAPSPACE_shared_info;
+    xatp.gpfn = (uint64_t)(_libxenplat_shared_info) >> PAGE_SHIFT;
+    if ( (ret = HYPERVISOR_memory_op(XENMEM_add_to_physmap, &xatp)) != 0 )
+        UK_CRASH("Failed to map shared_info: %d\n", ret);
+
 #endif
+    HYPERVISOR_shared_info = (shared_info_t *)_libxenplat_shared_info;
+}
 
 static inline void _init_mem(void)
 {
