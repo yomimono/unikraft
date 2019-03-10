@@ -1,14 +1,14 @@
 /* Included by x86_[32|64].S */
 #include <xen-x86/desc.h>
+#include <x86/cpu_defs.h>
 #include <xen-x86/mm.h>
 
         ELFNOTE(Xen, XEN_ELFNOTE_PHYS32_ENTRY, .long _start)
 .text
         .code32                 /* Always starts in 32bit flat mode. */
 
-.globl _start
-
-_start:
+.section .text.boot, "ax"
+_libxenplat_start:
         mov $(X86_CR4_PAE | X86_CR4_OSFXSR), %eax
         mov %eax, %cr4
         mov $page_table_base, %eax
@@ -17,7 +17,7 @@ _start:
 #ifdef __X86_64__               /* EFER.LME = 1 */
         mov $MSR_EFER, %ecx
         rdmsr
-        bts $_EFER_LME, %eax
+        or $X86_EFER_LME, %eax
         wrmsr
 #endif /* __X86_64__ */
 
