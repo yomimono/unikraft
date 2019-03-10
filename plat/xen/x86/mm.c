@@ -45,9 +45,17 @@
 #include <xen/memory.h>
 #include <uk/print.h>
 #include <uk/assert.h>
+#ifndef CONFIG_PARAVIRT
+#include <xen/arch-x86/hvm/start_info.h>
+#include <xen/hvm/e820.h>
+#include <x86/cpu.h>
+#endif
 
 #ifdef CONFIG_PARAVIRT
 unsigned long *phys_to_machine_mapping;
+#else
+struct e820entry e820_map[E820_MAX];
+unsigned e820_entries;
 #endif
 unsigned long mfn_zero;
 pgentry_t *pt_base;
@@ -678,9 +686,12 @@ void _init_mem_clear_bootstrap(void)
     if ( (rc = HYPERVISOR_update_va_mapping(0, nullpte, UVMF_INVLPG)) )
 	    uk_pr_err("Unable to unmap NULL page. rc=%d\n", rc);
 #else
+    /*
+     * TODO
 	pgt = get_pgt(__TEXT);
     *pgt = 0;
 	invlpg(__TEXT);
+    */
 #endif
 }
 
@@ -692,7 +703,57 @@ void _init_mem_prepare(unsigned long *start_pfn, unsigned long *max_pfn)
     *start_pfn = PFN_UP(to_phys(pt_base)) + HYPERVISOR_start_info->nr_pt_frames;
     *max_pfn = HYPERVISOR_start_info->nr_pages;
 #else
-#error "Please port (see Mini-OS's arch_mm_preinit())"
+    UK_ASSERT(HYPERVISOR_start_info->magic == XEN_HVM_START_MAGIC_VALUE);
+
+    long ret;
+    domid_t domid = DOMID_SELF;
+    struct xen_memory_map memmap;
+    struct hvm_modlist_entry *modlist;
+    int i;
+    unsigned long first_free_pfn, last_free_pfn, pfn, max = 0;
+
+    pt_base = read_cr3();
+    first_free_pfn = 1;
+    /* TODO: should this be converted to virt addr, or is 1:1 in place? */
+    /* TODO: assumption: modules loaded before free ram */
+    modlist = HYPERVISOR_start_info->modlist_paddr;
+    for (i = 0; i < HYPERVISOR_start_info->nr_modules; i++) {
+        pfn = (modlist[i].paddr + modlist[i].size + (PAGE_SIZE-1))>>PAGE_SHIFT;
+        if (pfn > first_free_pfn)
+            first_free_pfn = pfn;
+    }
+
+    ret = HYPERVISOR_memory_op(XENMEM_current_reservation, &domid);
+    if ( ret < 0 )
+    {
+        uk_pr_err("could not get memory size %d\n", ret);
+        ukplat_terminate(UKPLAT_CRASH);
+    }
+    last_free_pfn = ret;
+
+    memmap.nr_entries = E820_MAX;
+    set_xen_guest_handle(memmap.buffer, e820_map);
+    ret = HYPERVISOR_memory_op(XENMEM_memory_map, &memmap);
+    if ( ret < 0 )
+    {
+        uk_pr_err("could not get memory map %d\n", ret);
+        ukplat_terminate(UKPLAT_CRASH);
+    }
+    e820_entries = memmap.nr_entries;
+
+    for ( i = 0; i < e820_entries; i++ )
+    {
+        if ( e820_map[i].type != E820_RAM )
+            continue;
+        pfn = (e820_map[i].addr + e820_map[i].size) >> PAGE_SHIFT;
+        if ( pfn > max )
+            max = pfn;
+    }
+
+    if ( max < last_free_pfn )
+        last_free_pfn = max;
+    *start_pfn = first_free_pfn;
+    *max_pfn = max;
 #endif
 }
 

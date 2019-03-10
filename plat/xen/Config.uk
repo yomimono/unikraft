@@ -12,7 +12,7 @@ menuconfig PLAT_XEN
 if (PLAT_XEN)
 # Invisible option to switch between PV and PVH mode
 config XEN_HVMLITE
-	bool
+	bool "Xen PVH"
 	default n if (ARCH_X86_64 || ARCH_X86_32)
 	default y
 

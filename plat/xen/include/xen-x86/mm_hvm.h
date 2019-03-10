@@ -21,19 +21,15 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _MM_PV_H
-#define _MM_PV_H
-
+#ifndef _MM_HVM_H
+#define _MM_HVM_H
 
 #include <xen-x86/setup.h>
 
-#ifdef __x86_64__
-#define mfn_to_pfn(_mfn) (((unsigned long *)HYPERVISOR_VIRT_START)[(_mfn)])
-#else
-#define mfn_to_pfn(_mfn) (((unsigned long *)MACH2PHYS_VIRT_START)[(_mfn)])
-#endif
-#define pfn_to_mfn(_pfn) (phys_to_machine_mapping[(_pfn)])
+#define mfn_to_pfn(_mfn) ((unsigned long)(_mfn))
+#define pfn_to_mfn(_pfn) ((unsigned long)(_pfn))
 
+#if 0
 /* for P2M */
 #ifdef __x86_64__
 #define P2M_SHIFT       9
@@ -58,5 +54,7 @@ static inline unsigned long p2m_pages(unsigned long pages)
 }
 
 void arch_init_p2m(unsigned long max_pfn_p);
+
+#endif
 
 #endif /* _MM_PV_H */

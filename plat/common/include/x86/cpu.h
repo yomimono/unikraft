@@ -139,6 +139,15 @@ static inline void write_cr3(unsigned long cr3)
 	asm volatile("mov %0, %%cr3" : : "r"(cr3) : "memory");
 }
 
+static inline unsigned long read_cr3()
+{
+	unsigned long cr3;
+
+	__asm__ __volatile__("mov %%cr3, %0" : "=r"(cr3));
+
+	return cr3;
+}
+
 static inline void invlpg(unsigned long va)
 {
 	asm volatile("invlpg %0" : : "m"(*(const char *)(va)) : "memory");
