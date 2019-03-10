@@ -208,12 +208,12 @@ void _libxenplat_x86entry(void *start_info) __noreturn;
 
 void _libxenplat_x86entry(void *start_info)
 {
-	_init_traps();
-	_init_cpufeatures();
-	HYPERVISOR_start_info = (start_info_t *)start_info;
 #ifndef CONFIG_PARAVIRT
 	hpc_init();
 #endif
+	_init_traps();
+	_init_cpufeatures();
+	HYPERVISOR_start_info = (start_info_t *)start_info;
 	HYPERVISOR_console_io(CONSOLEIO_write, strlen("hypercall page mapped\n"), "hypercall page mapped\n");
 	prepare_console(); /* enables buffering for console */
 
