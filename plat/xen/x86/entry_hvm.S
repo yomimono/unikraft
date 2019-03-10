@@ -3,7 +3,7 @@
 #include <x86/cpu_defs.h>
 #include <xen-x86/mm.h>
 
-        ELFNOTE(Xen, XEN_ELFNOTE_PHYS32_ENTRY, .long _start)
+        ELFNOTE(Xen, XEN_ELFNOTE_PHYS32_ENTRY, .long _libxenplat_start)
 .text
         .code32                 /* Always starts in 32bit flat mode. */
 
