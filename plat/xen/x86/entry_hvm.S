@@ -11,7 +11,7 @@
 #ifdef __X86_64__               /* EFER.LME = 1 */
         mov $MSR_EFER, %ecx
         rdmsr
-        bts $_EFER_LME, %eax
+        or $X86_EFER_LME, %eax
         wrmsr
 #endif /* __X86_64__ */
 
