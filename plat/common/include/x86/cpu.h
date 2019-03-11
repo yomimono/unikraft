@@ -232,4 +232,13 @@ static inline __u64 mul64_32(__u64 a, __u32 b)
 	return prod;
 }
 
+static inline void cpuid(uint32_t leaf,
+                         uint32_t *eax, uint32_t *ebx,
+                         uint32_t *ecx, uint32_t *edx)
+{
+    asm volatile ("cpuid"
+                  : "=a" (*eax), "=b" (*ebx), "=c" (*ecx), "=d" (*edx)
+                  : "0" (leaf));
+}
+
 #endif /* __PLAT_COMMON_X86_CPU_H__ */
