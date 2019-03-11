@@ -37,14 +37,17 @@
 #else
 #error "Unsupported architecture"
 #endif
+#ifdef CONFIG_PARAVIRT
+#include <xen-x86/mm_pv.h>
+#else
+#include <xen-x86/mm_hvm.h>
+#endif
+
 #define CONST(x) __CONST(x)
 #else
 #define CONST(x) x
 #endif
 
-#ifdef CONFIG_PARAVIRT
-#include <xen-x86/mm_pv.h>
-#endif
 
 /*
  * Physical address space usage:
