@@ -103,26 +103,30 @@
 #include <xen/io/console.h>
 #include <xen/io/protocols.h>
 #include <xen/io/ring.h>
-#ifndef CONFIG_PARAVIRT
 #include <xen/hvm/params.h>
-#endif
 
 static struct xencons_interface *console_ring;
 static uint32_t console_evtchn;
 static int console_ready;
 
+extern char console_ring_page[];
+void hv_console_prepare(void)
+{
 #ifdef CONFIG_PARAVIRT
-void hv_console_prepare(void)
-{
-	console_ring = mfn_to_virt(HYPERVISOR_start_info->console.domU.mfn);
-	console_evtchn = HYPERVISOR_start_info->console.domU.evtchn;
-}
+	console_ring = mfn_to_virt(HYPERVISOR_start_info->pv.console.domU.mfn);
+	console_evtchn = HYPERVISOR_start_info->pv.console.domU.evtchn;
 #else
-void hv_console_prepare(void)
-{
-	/* NOT IMPLEMENTED YET */
-}
+	uint64_t evtchn;
+	uint64_t console_pfn;
+	if (hvm_get_parameter(HVM_PARAM_CONSOLE_EVTCHN, &evtchn))
+		UK_BUG();
+	console_evtchn = evtchn;
+	if (hvm_get_parameter(HVM_PARAM_CONSOLE_PFN, &console_pfn))
+		UK_BUG();
+	remap_frame(console_pfn, console_ring_page, L1_PROT);
+	console_ring = (struct xencons_interface *)console_ring_page;
 #endif
+}
 
 /*
  * hv_console_output operates in two modes: buffered and initialized.
