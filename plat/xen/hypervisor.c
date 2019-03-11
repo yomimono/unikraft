@@ -52,9 +52,7 @@
 
 int in_callback;
 
-#ifndef CONFIG_PARAVIRT
-extern shared_info_t shared_info;
-#endif /* !CONFIG_PARAVIRT */
+extern shared_info_t _libxenplat_shared_info;
 
 int hvm_get_parameter(int idx, uint64_t *value)
 {
