@@ -704,9 +704,14 @@ void _init_mem_clear_bootstrap(void)
     if ( (rc = HYPERVISOR_update_va_mapping(0, nullpte, UVMF_INVLPG)) )
 	    uk_pr_err("Unable to unmap NULL page. rc=%d\n", rc);
 #else
-	pgt = get_pgt(__TEXT);
+    /* we can't really clear PTE entry, as page tables for PVH use 2MB pages */
+    /* TODO: consider adjusting linker script to put .text.boot in a separate
+     * *2MB* page */
+    /*
+    pgt = get_pte(__TEXT);
     *pgt = 0;
-	invlpg(__TEXT);
+    invlpg(__TEXT);
+    */
 #endif
 }
 
