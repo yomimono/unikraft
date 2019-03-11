@@ -42,7 +42,7 @@
 #include <uk/arch/lcpu.h>
 #include <uk/arch/atomic.h>
 
-#ifdef CONFIG_UKDEBUG
+#ifdef CONFIG_LIBUKDEBUG
 #include <uk/assert.h>
 #endif
 
@@ -64,7 +64,7 @@ int hvm_get_parameter(int idx, uint64_t *value)
         xhv.domid = DOMID_SELF;
         xhv.index = idx;
         ret = HYPERVISOR_hvm_op(HVMOP_get_param, &xhv);
-#ifdef CONFIG_UKDEBUG
+#ifdef CONFIG_LIBUKDEBUG
         if(ret < 0)
                 UK_BUG();
 #endif
