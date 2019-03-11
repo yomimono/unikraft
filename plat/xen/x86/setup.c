@@ -167,6 +167,29 @@ static inline void _init_mem(void)
 	_libxenplat_mrd_num = 2;
 }
 
+#ifdef CONFIG_XEN_HVMLITE
+static void hpc_init(void)
+{
+	uint32_t eax, ebx, ecx, edx, base;
+
+	for ( base = XEN_CPUID_FIRST_LEAF;
+			base < XEN_CPUID_FIRST_LEAF + 0x10000; base += 0x100 )
+	{
+		cpuid(base, &eax, &ebx, &ecx, &edx);
+
+		if ( (ebx == XEN_CPUID_SIGNATURE_EBX) &&
+				(ecx == XEN_CPUID_SIGNATURE_ECX) &&
+				(edx == XEN_CPUID_SIGNATURE_EDX) &&
+				((eax - base) >= 2) )
+			break;
+	}
+
+	cpuid(base + 2, &eax, &ebx, &ecx, &edx);
+	wrmsrl(ebx, (unsigned long)&hypercall_page);
+	barrier();
+}
+#endif
+
 void _libxenplat_x86entry(void *start_info) __noreturn;
 
 void _libxenplat_x86entry(void *start_info)
@@ -183,6 +206,10 @@ void _libxenplat_x86entry(void *start_info)
 	else
 #endif
 		UK_CRASH("Unsupported platform");
+#ifdef CONFIG_XEN_HVMLITE
+	if (xen_guest_type == xen_guest_type_hvm)
+		hpc_init();
+#endif
 	_init_traps();
 	_init_cpufeatures();
 	prepare_console(); /* enables buffering for console */
