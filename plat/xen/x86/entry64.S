@@ -50,17 +50,20 @@ ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS, .asciz "Unikraft")
 ELFNOTE(Xen, XEN_ELFNOTE_LOADER, .asciz "generic")
 ELFNOTE(Xen, XEN_ELFNOTE_HYPERCALL_PAGE, _WORD hypercall_page)
 ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION, .asciz "xen-3.0")
+#endif
+#ifdef CONFIG_XEN_HVMLITE
+ELFNOTE(Xen, XEN_ELFNOTE_PHYS32_ENTRY, .long _libxenplat_start_hvm)
+#endif
 .text
 
-.globl _libxenplat_start
-
 .section .text.boot, "ax"
-_libxenplat_start:
-#else
 
+#ifdef CONFIG_XEN_HVMLITE
+ENTRY(_libxenplat_start_hvm)
 #include "entry_hvm.S"
-
 #endif
+
+ENTRY(_libxenplat_start)
 	cld
 	movq stack_start(%rip),%rsp
 	andq $(~(__STACK_SIZE-1)), %rsp
