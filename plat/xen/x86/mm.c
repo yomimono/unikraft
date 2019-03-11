@@ -235,6 +235,12 @@ static pgentry_t *get_pte(unsigned long va)
 	unsigned int offset;
 
 	tab = pt_base;
+#ifndef CONFIG_PARAVIRT
+	/* allow callig get_pte very early - before _init_mem_prepare */
+	if (!tab)
+		tab = page_table_base;
+#endif
+	UK_ASSERT(tab);
 
 #if defined(__x86_64__)
 	offset = l4_table_offset(va);

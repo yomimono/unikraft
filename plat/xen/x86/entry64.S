@@ -131,7 +131,7 @@ mxcsr_ptr:
 stack_start:
         .quad _libxenplat_bootstack + (2*__STACK_SIZE)
 
-.globl _libxenplat_shared_info, hypercall_page
+.globl _libxenplat_shared_info, hypercall_page, console_ring_page
         /* Unpleasant -- the PTE that maps this page is actually overwritten */
         /* to map the real shared-info page! :-)                             */
         .align __PAGE_SIZE
@@ -139,6 +139,13 @@ _libxenplat_shared_info:
         .fill __PAGE_SIZE,1,0
 
 hypercall_page:
+        .fill __PAGE_SIZE,1,0
+
+        /* Unpleasant -- the PTE that maps this page is actually overwritten */
+        /* to map the real console-ring page! :-)                            */
+        /* (we need PTE for this before ukalloc is initialized)              */
+        .align __PAGE_SIZE
+console_ring_page:
         .fill __PAGE_SIZE,1,0
 
 
