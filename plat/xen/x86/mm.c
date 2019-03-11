@@ -496,6 +496,26 @@ void *map_frames_ex(const unsigned long *mfns, unsigned long n,
 	return (void *) va;
 }
 
+/**
+ * remap_frame - replace a frame at *va* with mfn
+ * @mfn: new MFN to be mapped at *va*
+ * @va: virtual address to remap
+ * @prot: Page protection flags
+ *
+ * There must be a frame already mapped at *va*, and it needs to be a single 4k
+ * page. It's safe to use it before unifraft memory allocator init.
+ */
+void remap_frame(const unsigned long mfn, void *va, unsigned long prot)
+{
+	pgentry_t *pte;
+
+	UK_ASSERT(!((unsigned long)va & ~PAGE_MASK));
+	pte = get_pte((unsigned long)va);
+	UK_ASSERT(pte);
+	UK_ASSERT(!(*pte & _PAGE_PSE));
+	*pte = (mfn << PAGE_SHIFT) | prot | _PAGE_PRESENT;
+}
+
 /*
  * Unmap num_frames frames mapped at virtual address va.
  */

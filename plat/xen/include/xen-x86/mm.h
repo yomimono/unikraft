@@ -291,6 +291,7 @@ void *map_frames_ex(const unsigned long *mfns, unsigned long n,
 	map_frames_ex(&mfn_zero, n, 0, 0, a, DOMID_SELF, NULL, L1_PROT_RO, a)
 #define do_map_zero(start, n, a) \
 	do_map_frames(start, &mfn_zero, n, 0, 0, DOMID_SELF, NULL, L1_PROT_RO, a)
+void remap_frame(const unsigned long mfn, void *va, unsigned long prot);
 
 void arch_mm_preinit(void *p);
 unsigned long alloc_virt_kernel(unsigned n_pages);
