@@ -93,6 +93,7 @@
 #define MAX_CMDLINE_SIZE 1024
 static char cmdline[MAX_CMDLINE_SIZE];
 
+xen_guest_type_t xen_guest_type;
 start_info_t *HYPERVISOR_start_info;
 shared_info_t *HYPERVISOR_shared_info;
 
@@ -170,17 +171,34 @@ void _libxenplat_x86entry(void *start_info) __noreturn;
 
 void _libxenplat_x86entry(void *start_info)
 {
+	HYPERVISOR_start_info = (start_info_t *)start_info;
+#ifdef CONFIG_XEN_HVMLITE
+	if (HYPERVISOR_start_info->hvm.magic == XEN_HVM_START_MAGIC_VALUE)
+		xen_guest_type = xen_guest_type_hvm;
+	else
+#endif
+#ifdef CONFIG_PARAVIRT
+	if (strncmp(HYPERVISOR_start_info->pv.magic, "xen-", 4) == 0)
+		xen_guest_type = xen_guest_type_pv;
+	else
+#endif
+		UK_CRASH("Unsupported platform");
 	_init_traps();
 	_init_cpufeatures();
-	HYPERVISOR_start_info = (start_info_t *)start_info;
 	prepare_console(); /* enables buffering for console */
 
-	uk_pr_info("Entering from Xen (x86, PV)...\n");
+	uk_pr_info("Entering from Xen (x86, %s)...\n",
+	           xen_guest_type == xen_guest_type_pv ? "PV" : "PVH");
 
 	_init_shared_info(); /* remaps shared info */
 
+#ifdef CONFIG_PARAVIRT
 	strncpy(cmdline, (char *)HYPERVISOR_start_info->pv.cmd_line,
-		MAX_CMDLINE_SIZE);
+	        MAX_CMDLINE_SIZE);
+#else
+	strncpy(cmdline, (char *)HYPERVISOR_start_info->hvm.cmdline_paddr,
+	        MAX_CMDLINE_SIZE);
+#endif
 
 	/* Set up events. */
 	init_events();

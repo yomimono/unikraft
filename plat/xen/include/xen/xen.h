@@ -38,6 +38,8 @@
 #endif
 
 #ifndef __ASSEMBLY__
+#include "arch-x86/hvm/start_info.h"
+
 /* Guest handles for primitive C types. */
 DEFINE_XEN_GUEST_HANDLE(char);
 __DEFINE_XEN_GUEST_HANDLE(uchar, unsigned char);
@@ -840,7 +842,14 @@ typedef union {
 #ifdef XEN_HAVE_PV_GUEST_ENTRY
         struct start_info_pv pv;
 #endif /* XEN_HAVE_PV_GUEST_ENTRY */
+#ifdef CONFIG_XEN_HVMLITE
+        struct hvm_start_info hvm;
+#endif
 } start_info_t;
+
+typedef enum { xen_guest_type_pv, xen_guest_type_hvm } xen_guest_type_t;
+extern xen_guest_type_t xen_guest_type;
+
 
 /* These flags are passed in the 'flags' field of start_info_t. */
 #define SIF_PRIVILEGED    (1<<0)  /* Is the domain privileged? */
