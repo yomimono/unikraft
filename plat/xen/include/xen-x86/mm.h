@@ -220,11 +220,8 @@ typedef unsigned long maddr_t;
 #endif
 
 extern pgentry_t *pt_base;
-#ifdef CONFIG_PARAVIRT
 extern unsigned long *phys_to_machine_mapping;
-#else
 extern pgentry_t page_table_base[];
-#endif
 
 extern unsigned long mfn_zero;
 #ifdef CONFIG_PARAVIRT
