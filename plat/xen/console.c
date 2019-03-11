@@ -74,7 +74,7 @@ int ukplat_coutd(const char *str, unsigned int len)
 	int ret, ret2;
 
 	if (unlikely(len == 0))
-		len = strnlen(str, len);
+		len = strlen(str);
 
 	ret  = emg_console_output_d(str, len);
 	ret2 = hv_console_output_d(str, len);
@@ -86,7 +86,7 @@ int ukplat_coutk(const char *str, unsigned int len)
 	int ret, ret2;
 
 	if (unlikely(len == 0))
-		len = strnlen(str, len);
+		len = strlen(str);
 
 	ret  = emg_console_output_k(str, len);
 	ret2 = hv_console_output_k(str, len);
