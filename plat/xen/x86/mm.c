@@ -687,10 +687,10 @@ void _init_mem_clear_bootstrap(void)
 void _init_mem_prepare(unsigned long *start_pfn, unsigned long *max_pfn)
 {
 #ifdef CONFIG_PARAVIRT
-    phys_to_machine_mapping = (unsigned long *)HYPERVISOR_start_info->mfn_list;
-    pt_base = (pgentry_t *)HYPERVISOR_start_info->pt_base;
-    *start_pfn = PFN_UP(to_phys(pt_base)) + HYPERVISOR_start_info->nr_pt_frames;
-    *max_pfn = HYPERVISOR_start_info->nr_pages;
+    phys_to_machine_mapping = (unsigned long *)HYPERVISOR_start_info->pv.mfn_list;
+    pt_base = (pgentry_t *)HYPERVISOR_start_info->pv.pt_base;
+    *start_pfn = PFN_UP(to_phys(pt_base)) + HYPERVISOR_start_info->pv.nr_pt_frames;
+    *max_pfn = HYPERVISOR_start_info->pv.nr_pages;
 #else
 #error "Please port (see Mini-OS's arch_mm_preinit())"
 #endif
