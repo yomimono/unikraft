@@ -73,6 +73,15 @@ int hvm_get_parameter(int idx, uint64_t *value)
         return ret;
 }
 
+int hvm_set_parameter(int idx, uint64_t value)
+{
+        struct xen_hvm_param xhv;
+
+        xhv.domid = DOMID_SELF;
+        xhv.index = idx;
+        xhv.value = value;
+        return HYPERVISOR_hvm_op(HVMOP_set_param, &xhv);
+}
 
 __attribute__((weak)) void do_hypervisor_callback(struct __regs *regs)
 {
