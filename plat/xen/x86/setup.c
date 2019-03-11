@@ -117,7 +117,7 @@ static inline void _init_traps(void)
 static inline void _init_shared_info(void)
 {
 	int ret;
-	unsigned long pa = HYPERVISOR_start_info->shared_info;
+	unsigned long pa = HYPERVISOR_start_info->pv.shared_info;
 	extern char _libxenplat_shared_info[__PAGE_SIZE];
 
 	if ((ret = HYPERVISOR_update_va_mapping(
@@ -179,7 +179,7 @@ void _libxenplat_x86entry(void *start_info)
 
 	_init_shared_info(); /* remaps shared info */
 
-	strncpy(cmdline, (char *)HYPERVISOR_start_info->cmd_line,
+	strncpy(cmdline, (char *)HYPERVISOR_start_info->pv.cmd_line,
 		MAX_CMDLINE_SIZE);
 
 	/* Set up events. */
