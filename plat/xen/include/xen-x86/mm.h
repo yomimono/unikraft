@@ -300,10 +300,6 @@ unsigned long alloc_virt_kernel(unsigned n_pages);
 void arch_print_memmap(void);
 #endif
 
-#endif
-
-#ifndef __ASSEMBLY__
-
 void _init_mem_prepare(unsigned long *start_pfn, unsigned long *max_pfn);
 void _init_mem_build_pagetable(unsigned long *start_pfn,
 							   unsigned long *max_pfn);
