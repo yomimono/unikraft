@@ -73,6 +73,10 @@ SECTIONS
 	}
 	_edata = .; /* End of data included in image */
 
+	.notes : {
+		*(.note)
+		*(.note.*)
+	}
 	/*
 	 * NOTE: linker will insert any extra sections here,
 	 * just before .bss
