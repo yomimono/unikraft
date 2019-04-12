@@ -45,10 +45,14 @@
 #include <xen/memory.h>
 #include <uk/print.h>
 #include <uk/assert.h>
+#include <x86/cpu.h>
+#include <xen/hvm/e820.h>
 
 #ifdef CONFIG_PARAVIRT
 unsigned long *phys_to_machine_mapping;
 #endif
+struct e820entry e820_map[E820_MAX];
+unsigned e820_entries;
 unsigned long mfn_zero;
 pgentry_t *pt_base;
 
@@ -235,6 +239,12 @@ static pgentry_t *get_pte(unsigned long va)
 	unsigned int offset;
 
 	tab = pt_base;
+#ifndef CONFIG_PARAVIRT
+	/* allow callig get_pte very early - before _init_mem_prepare */
+	if (!tab)
+		tab = page_table_base;
+#endif
+	UK_ASSERT(tab);
 
 #if defined(__x86_64__)
 	offset = l4_table_offset(va);
@@ -496,6 +506,26 @@ void *map_frames_ex(const unsigned long *mfns, unsigned long n,
 	return (void *) va;
 }
 
+/**
+ * remap_frame - replace a frame at *va* with mfn
+ * @mfn: new MFN to be mapped at *va*
+ * @va: virtual address to remap
+ * @prot: Page protection flags
+ *
+ * There must be a frame already mapped at *va*, and it needs to be a single 4k
+ * page. It's safe to use it before unifraft memory allocator init.
+ */
+void remap_frame(const unsigned long mfn, void *va, unsigned long prot)
+{
+	pgentry_t *pte;
+
+	UK_ASSERT(!((unsigned long)va & ~PAGE_MASK));
+	pte = get_pte((unsigned long)va);
+	UK_ASSERT(pte);
+	UK_ASSERT(!(*pte & _PAGE_PSE));
+	*pte = (mfn << PAGE_SHIFT) | prot | _PAGE_PRESENT;
+}
+
 /*
  * Unmap num_frames frames mapped at virtual address va.
  */
@@ -678,21 +708,72 @@ void _init_mem_clear_bootstrap(void)
     if ( (rc = HYPERVISOR_update_va_mapping(0, nullpte, UVMF_INVLPG)) )
 	    uk_pr_err("Unable to unmap NULL page. rc=%d\n", rc);
 #else
-	pgt = get_pgt(__TEXT);
+    /* we can't really clear PTE entry, as page tables for PVH use 2MB pages */
+    /* TODO: consider adjusting linker script to put .text.boot in a separate
+     * *2MB* page */
+    /*
+    pgt = get_pte(__TEXT);
     *pgt = 0;
-	invlpg(__TEXT);
+    invlpg(__TEXT);
+    */
 #endif
 }
 
 void _init_mem_prepare(unsigned long *start_pfn, unsigned long *max_pfn)
 {
 #ifdef CONFIG_PARAVIRT
-    phys_to_machine_mapping = (unsigned long *)HYPERVISOR_start_info->mfn_list;
-    pt_base = (pgentry_t *)HYPERVISOR_start_info->pt_base;
-    *start_pfn = PFN_UP(to_phys(pt_base)) + HYPERVISOR_start_info->nr_pt_frames;
-    *max_pfn = HYPERVISOR_start_info->nr_pages;
+	phys_to_machine_mapping = (unsigned long *)HYPERVISOR_start_info->pv.mfn_list;
+	pt_base = (pgentry_t *)HYPERVISOR_start_info->pv.pt_base;
+	*start_pfn = PFN_UP(to_phys(pt_base)) + HYPERVISOR_start_info->pv.nr_pt_frames;
+	*max_pfn = HYPERVISOR_start_info->pv.nr_pages;
 #else
-#error "Please port (see Mini-OS's arch_mm_preinit())"
+	long ret;
+	struct xen_memory_map memmap;
+	size_t i;
+	unsigned long first_free_pfn, last_free_pfn, max = 0;
+	unsigned long tmp_start_addr, tmp_end_addr;
+
+	pt_base = page_table_base;
+	/* XXX modules live somewhere in RAM, see HYPERVISOR_start_info->modlist_paddr.
+	 * If unikernel would want to use them, it need to be parsed and exported
+	 * somewhere. And possibly excluded from unikraft memory allocator.
+	 */
+	memmap.nr_entries = E820_MAX;
+	set_xen_guest_handle(memmap.buffer, e820_map);
+	ret = HYPERVISOR_memory_op(XENMEM_memory_map, &memmap);
+	if ( ret < 0 )
+	{
+		uk_pr_err("could not get memory map %ld\n", ret);
+		ukplat_terminate(UKPLAT_CRASH);
+	}
+	e820_entries = memmap.nr_entries;
+
+	/* find the largest RAM area, normally there is just one */
+	for ( i = 0; i < e820_entries; i++ )
+	{
+		uk_pr_debug("E820 entry type %d: %#lx - %#lx\n", e820_map[i].type, e820_map[i].addr, e820_map[i].addr + e820_map[i].size);
+		if ( e820_map[i].type != E820_RAM )
+			continue;
+
+		/* if this area include the kernel image, use only area after it
+		 * (discard anything before the kernel, normally nothing as kernel is
+		 * mapped at 0) */
+		tmp_start_addr = e820_map[i].addr;
+		tmp_end_addr = e820_map[i].addr+e820_map[i].size;
+		if (tmp_start_addr <= __END && __END <= tmp_end_addr) {
+			tmp_start_addr = (__END + PAGE_SIZE-1) & ~(PAGE_SIZE-1);
+		}
+		if ((tmp_end_addr-tmp_start_addr) > max) {
+			first_free_pfn = virt_to_pfn(tmp_start_addr);
+			last_free_pfn = PFN_UP(tmp_end_addr);
+			max = (tmp_end_addr-tmp_start_addr);
+		}
+	}
+
+	if (!max)
+		UK_CRASH("Can't find RAM area in E820 map\n");
+	*start_pfn = first_free_pfn;
+	*max_pfn = last_free_pfn;
 #endif
 }
 

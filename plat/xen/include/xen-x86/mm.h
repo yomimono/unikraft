@@ -37,14 +37,17 @@
 #else
 #error "Unsupported architecture"
 #endif
+#ifdef CONFIG_PARAVIRT
+#include <xen-x86/mm_pv.h>
+#else
+#include <xen-x86/mm_hvm.h>
+#endif
+
 #define CONST(x) __CONST(x)
 #else
 #define CONST(x) x
 #endif
 
-#ifdef CONFIG_PARAVIRT
-#include <xen-x86/mm_pv.h>
-#endif
 
 /*
  * Physical address space usage:
@@ -217,11 +220,8 @@ typedef unsigned long maddr_t;
 #endif
 
 extern pgentry_t *pt_base;
-#ifdef CONFIG_PARAVIRT
 extern unsigned long *phys_to_machine_mapping;
-#else
 extern pgentry_t page_table_base[];
-#endif
 
 extern unsigned long mfn_zero;
 #ifdef CONFIG_PARAVIRT
@@ -291,6 +291,7 @@ void *map_frames_ex(const unsigned long *mfns, unsigned long n,
 	map_frames_ex(&mfn_zero, n, 0, 0, a, DOMID_SELF, NULL, L1_PROT_RO, a)
 #define do_map_zero(start, n, a) \
 	do_map_frames(start, &mfn_zero, n, 0, 0, DOMID_SELF, NULL, L1_PROT_RO, a)
+void remap_frame(const unsigned long mfn, void *va, unsigned long prot);
 
 void arch_mm_preinit(void *p);
 unsigned long alloc_virt_kernel(unsigned n_pages);
@@ -298,10 +299,6 @@ unsigned long alloc_virt_kernel(unsigned n_pages);
 #ifndef CONFIG_PARAVIRT
 void arch_print_memmap(void);
 #endif
-
-#endif
-
-#ifndef __ASSEMBLY__
 
 void _init_mem_prepare(unsigned long *start_pfn, unsigned long *max_pfn);
 void _init_mem_build_pagetable(unsigned long *start_pfn,

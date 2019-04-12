@@ -1,4 +1,7 @@
+/* SPDX-License-Identifier: MIT */
 /*
+ * (C) 2016 - Juergen Gross, SUSE Linux GmbH
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal in the Software without restriction, including without limitation the
@@ -16,44 +19,14 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- *
- * Copyright (c) 2006, Keir Fraser
  */
 
-#ifndef __XEN_PUBLIC_HVM_E820_H__
-#define __XEN_PUBLIC_HVM_E820_H__
+#ifndef _MM_HVM_H
+#define _MM_HVM_H
 
-#include "../xen.h"
+#include <xen-x86/setup.h>
 
-/* E820 location in HVM virtual address space. */
-#define HVM_E820_PAGE        0x00090000
-#define HVM_E820_NR_OFFSET   0x000001E8
-#define HVM_E820_OFFSET      0x000002D0
+#define mfn_to_pfn(_mfn) ((unsigned long)(_mfn))
+#define pfn_to_mfn(_pfn) ((unsigned long)(_pfn))
 
-#define HVM_BELOW_4G_RAM_END        0xF0000000
-#define HVM_BELOW_4G_MMIO_START     HVM_BELOW_4G_RAM_END
-#define HVM_BELOW_4G_MMIO_LENGTH    ((xen_mk_ullong(1) << 32) - \
-                                     HVM_BELOW_4G_MMIO_START)
-
-#define E820_RAM          1
-#define E820_RESERVED     2
-#define E820_ACPI         3
-#define E820_NVS          4
-#define E820_UNUSABLE     5
-#define E820_PMEM         7
-#define E820_TYPES        8
-
-
-struct __packed e820entry {
-	uint64_t addr;
-	uint64_t size;
-	uint32_t type;
-};
-
-/* Maximum number of entries. */
-#define E820_MAX          128
-
-extern struct e820entry e820_map[];
-extern unsigned e820_entries;
-
-#endif /* __XEN_PUBLIC_HVM_E820_H__ */
+#endif /* _MM_PV_H */

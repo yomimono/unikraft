@@ -30,6 +30,7 @@
 #include <uk/config.h>
 #include <xen/xen.h>
 #include <xen/elfnote.h>
+#include <xen-x86/mm.h>
 
 #define ELFNOTE(name, type, desc)           \
     .pushsection .note.name               ; \
@@ -50,17 +51,20 @@ ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS, .asciz "Unikraft")
 ELFNOTE(Xen, XEN_ELFNOTE_LOADER, .asciz "generic")
 ELFNOTE(Xen, XEN_ELFNOTE_HYPERCALL_PAGE, _WORD hypercall_page)
 ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION, .asciz "xen-3.0")
+#endif
+#ifdef CONFIG_XEN_HVMLITE
+ELFNOTE(Xen, XEN_ELFNOTE_PHYS32_ENTRY, .long _libxenplat_start_hvm)
+#endif
 .text
 
-.globl _libxenplat_start
-
 .section .text.boot, "ax"
-_libxenplat_start:
-#else
 
+#ifdef CONFIG_XEN_HVMLITE
+ENTRY(_libxenplat_start_hvm)
 #include "entry_hvm.S"
-
 #endif
+
+ENTRY(_libxenplat_start)
 	cld
 	movq stack_start(%rip),%rsp
 	andq $(~(__STACK_SIZE-1)), %rsp
@@ -127,7 +131,7 @@ mxcsr_ptr:
 stack_start:
         .quad _libxenplat_bootstack + (2*__STACK_SIZE)
 
-.globl _libxenplat_shared_info, hypercall_page
+.globl _libxenplat_shared_info, hypercall_page, console_ring_page
         /* Unpleasant -- the PTE that maps this page is actually overwritten */
         /* to map the real shared-info page! :-)                             */
         .align __PAGE_SIZE
@@ -135,6 +139,13 @@ _libxenplat_shared_info:
         .fill __PAGE_SIZE,1,0
 
 hypercall_page:
+        .fill __PAGE_SIZE,1,0
+
+        /* Unpleasant -- the PTE that maps this page is actually overwritten */
+        /* to map the real console-ring page! :-)                            */
+        /* (we need PTE for this before ukalloc is initialized)              */
+        .align __PAGE_SIZE
+console_ring_page:
         .fill __PAGE_SIZE,1,0
 
 
@@ -401,6 +412,45 @@ TRAP_ENTRY simd_error,          0
 #ifndef CONFIG_PARAVIRT
 .data
 .globl page_table_base
+/*
+ * Macro to create a sequence of page table entries.
+ * As a loop can be done via recursion only and the nesting level is limited
+ * we treat the first 32 PTEs in a special way limiting nesting level to 64
+ * in case of a complete page table (512 PTEs) to be filled.
+ * prot: protection bits in all PTEs
+ * addr: physical address of the area to map
+ * incr: increment of address for each PTE
+ * idx:  index of first PTE in page table
+ * end:  index of last PTE in page table + 1
+ */
+        .macro PTES prot, addr, incr, idx, end
+        .ifgt \end-\idx-32
+        PTES \prot, \addr, \incr, \idx, "(\idx+32)"
+        PTES \prot, "(\addr+32*\incr)", \incr, "(\idx+32)", \end
+        .else
+        PTE(\addr + \prot)
+        .if \end-\idx-1
+        PTES \prot, "(\addr+\incr)", \incr, "(\idx+1)", \end
+        .endif
+        .endif
+        .endm
+        .align __PAGE_SIZE
+page_table_virt_l1:
+        PTE(0)
+        .align __PAGE_SIZE, 0
+page_table_l1:
+        PTES L1_PROT, 0x00000000, 0x00001000, 0, L1_PAGETABLE_ENTRIES
+        .align __PAGE_SIZE, 0
+page_table_l2:
+        /* Map the first 1GB of memory (on 32 bit 16MB less). */
+        PTE(page_table_l1 + L2_PROT)
+#ifdef __X86_64__
+        PTES L2_PROT|_PAGE_PSE, 0x00200000, 0x00200000, 1, L2_PAGETABLE_ENTRIES
+#else
+        /* At 3f000000 virtual kernel area is starting. */
+        PTES L2_PROT|_PAGE_PSE, 0x00200000, 0x00200000, 1, l2_table_offset(VIRT_KERNEL_AREA)
+        PTE(page_table_virt_l1 + L2_PROT)
+#endif
         .align __PAGE_SIZE
 page_table_virt_l2:
         PTE(page_table_virt_l1 + L2_PROT)

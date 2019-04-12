@@ -76,6 +76,8 @@
  */
 #define X86_EFER_LME            (1 << 8)    /* Long mode enable (R/W) */
 
+#define MSR_EFER                0xc0000080
+
 /* CPUID feature bits in ECX and EDX when EAX=1 */
 #define X86_CPUID1_ECX_XSAVE    (1 << 26)
 #define X86_CPUID1_ECX_OSXSAVE  (1 << 27)

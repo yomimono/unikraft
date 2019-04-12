@@ -38,6 +38,8 @@
 #endif
 
 #ifndef __ASSEMBLY__
+#include "arch-x86/hvm/start_info.h"
+
 /* Guest handles for primitive C types. */
 DEFINE_XEN_GUEST_HANDLE(char);
 __DEFINE_XEN_GUEST_HANDLE(uchar, unsigned char);
@@ -797,7 +799,7 @@ typedef struct shared_info shared_info_t;
  * pages preceding pt_base and mark them as reserved/unused.
  */
 #ifdef XEN_HAVE_PV_GUEST_ENTRY
-struct start_info {
+struct start_info_pv {
     /* THE FOLLOWING ARE FILLED IN BOTH ON INITIAL BOOT AND ON RESUME.    */
     char magic[32];             /* "xen-<version>-<platform>".            */
     unsigned long nr_pages;     /* Total pages allocated to this domain.  */
@@ -829,7 +831,6 @@ struct start_info {
     unsigned long first_p2m_pfn;/* 1st pfn forming initial P->M table.    */
     unsigned long nr_p2m_frames;/* # of pfns forming initial P->M table.  */
 };
-typedef struct start_info start_info_t;
 
 /* New console union for dom0 introduced in 0x00030203. */
 #if __XEN_INTERFACE_VERSION__ < 0x00030203
@@ -837,6 +838,18 @@ typedef struct start_info start_info_t;
 #define console_evtchn console.domU.evtchn
 #endif
 #endif /* XEN_HAVE_PV_GUEST_ENTRY */
+typedef union {
+#ifdef XEN_HAVE_PV_GUEST_ENTRY
+        struct start_info_pv pv;
+#endif /* XEN_HAVE_PV_GUEST_ENTRY */
+#ifdef CONFIG_XEN_HVMLITE
+        struct hvm_start_info hvm;
+#endif
+} start_info_t;
+
+typedef enum { xen_guest_type_pv, xen_guest_type_hvm } xen_guest_type_t;
+extern xen_guest_type_t xen_guest_type;
+
 
 /* These flags are passed in the 'flags' field of start_info_t. */
 #define SIF_PRIVILEGED    (1<<0)  /* Is the domain privileged? */

@@ -87,12 +87,14 @@
 #include <xen-x86/irq.h>
 #include <xen-x86/mm.h>
 #include <xen-x86/setup.h>
+#include <xen/memory.h>
 #include <xen/arch-x86/cpuid.h>
 #include <xen/arch-x86/hvm/start_info.h>
 
 #define MAX_CMDLINE_SIZE 1024
 static char cmdline[MAX_CMDLINE_SIZE];
 
+xen_guest_type_t xen_guest_type;
 start_info_t *HYPERVISOR_start_info;
 shared_info_t *HYPERVISOR_shared_info;
 
@@ -116,14 +118,26 @@ static inline void _init_traps(void)
 
 static inline void _init_shared_info(void)
 {
-	int ret;
-	unsigned long pa = HYPERVISOR_start_info->shared_info;
 	extern char _libxenplat_shared_info[__PAGE_SIZE];
+	int ret;
+
+#ifdef CONFIG_PARAVIRT
+	unsigned long pa = HYPERVISOR_start_info->pv.shared_info;
 
 	if ((ret = HYPERVISOR_update_va_mapping(
-		 (unsigned long)_libxenplat_shared_info, __pte(pa | 7),
-		 UVMF_INVLPG)))
+					(unsigned long)_libxenplat_shared_info, __pte(pa | 7),
+					UVMF_INVLPG)))
 		UK_CRASH("Failed to map shared_info: %d\n", ret);
+#else
+	struct xen_add_to_physmap xatp;
+
+	xatp.domid = DOMID_SELF;
+	xatp.idx = 0;
+	xatp.space = XENMAPSPACE_shared_info;
+	xatp.gpfn = (uint64_t)(_libxenplat_shared_info) >> PAGE_SHIFT;
+	if ( (ret = HYPERVISOR_memory_op(XENMEM_add_to_physmap, &xatp)) != 0 )
+		UK_CRASH("Failed to map shared_info: %d\n", ret);
+#endif
 	HYPERVISOR_shared_info = (shared_info_t *)_libxenplat_shared_info;
 }
 
@@ -166,21 +180,65 @@ static inline void _init_mem(void)
 	_libxenplat_mrd_num = 2;
 }
 
+#ifdef CONFIG_XEN_HVMLITE
+static void hpc_init(void)
+{
+	uint32_t eax, ebx, ecx, edx, base;
+
+	for ( base = XEN_CPUID_FIRST_LEAF;
+			base < XEN_CPUID_FIRST_LEAF + 0x10000; base += 0x100 )
+	{
+		cpuid(base, &eax, &ebx, &ecx, &edx);
+
+		if ( (ebx == XEN_CPUID_SIGNATURE_EBX) &&
+				(ecx == XEN_CPUID_SIGNATURE_ECX) &&
+				(edx == XEN_CPUID_SIGNATURE_EDX) &&
+				((eax - base) >= 2) )
+			break;
+	}
+
+	cpuid(base + 2, &eax, &ebx, &ecx, &edx);
+	wrmsrl(ebx, (unsigned long)&hypercall_page);
+	barrier();
+}
+#endif
+
 void _libxenplat_x86entry(void *start_info) __noreturn;
 
 void _libxenplat_x86entry(void *start_info)
 {
+	HYPERVISOR_start_info = (start_info_t *)start_info;
+#ifdef CONFIG_XEN_HVMLITE
+	if (HYPERVISOR_start_info->hvm.magic == XEN_HVM_START_MAGIC_VALUE)
+		xen_guest_type = xen_guest_type_hvm;
+	else
+#endif
+#ifdef CONFIG_PARAVIRT
+	if (strncmp(HYPERVISOR_start_info->pv.magic, "xen-", 4) == 0)
+		xen_guest_type = xen_guest_type_pv;
+	else
+#endif
+		UK_CRASH("Unsupported platform");
+#ifdef CONFIG_XEN_HVMLITE
+	if (xen_guest_type == xen_guest_type_hvm)
+		hpc_init();
+#endif
 	_init_traps();
 	_init_cpufeatures();
-	HYPERVISOR_start_info = (start_info_t *)start_info;
 	prepare_console(); /* enables buffering for console */
 
-	uk_pr_info("Entering from Xen (x86, PV)...\n");
+	uk_pr_info("Entering from Xen (x86, %s)...\n",
+	           xen_guest_type == xen_guest_type_pv ? "PV" : "PVH");
 
 	_init_shared_info(); /* remaps shared info */
 
-	strncpy(cmdline, (char *)HYPERVISOR_start_info->cmd_line,
-		MAX_CMDLINE_SIZE);
+#ifdef CONFIG_PARAVIRT
+	strncpy(cmdline, (char *)HYPERVISOR_start_info->pv.cmd_line,
+	        MAX_CMDLINE_SIZE);
+#else
+	strncpy(cmdline, (char *)HYPERVISOR_start_info->hvm.cmdline_paddr,
+	        MAX_CMDLINE_SIZE);
+#endif
 
 	/* Set up events. */
 	init_events();

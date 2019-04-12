@@ -42,7 +42,7 @@
 #include <uk/arch/lcpu.h>
 #include <uk/arch/atomic.h>
 
-#ifdef CONFIG_UKDEBUG
+#ifdef CONFIG_LIBUKDEBUG
 #include <uk/assert.h>
 #endif
 
@@ -52,9 +52,7 @@
 
 int in_callback;
 
-#ifndef CONFIG_PARAVIRT
-extern shared_info_t shared_info;
-#endif /* !CONFIG_PARAVIRT */
+extern shared_info_t _libxenplat_shared_info;
 
 int hvm_get_parameter(int idx, uint64_t *value)
 {
@@ -64,7 +62,7 @@ int hvm_get_parameter(int idx, uint64_t *value)
         xhv.domid = DOMID_SELF;
         xhv.index = idx;
         ret = HYPERVISOR_hvm_op(HVMOP_get_param, &xhv);
-#ifdef CONFIG_UKDEBUG
+#ifdef CONFIG_LIBUKDEBUG
         if(ret < 0)
                 UK_BUG();
 #endif
@@ -73,6 +71,15 @@ int hvm_get_parameter(int idx, uint64_t *value)
         return ret;
 }
 
+int hvm_set_parameter(int idx, uint64_t value)
+{
+        struct xen_hvm_param xhv;
+
+        xhv.domid = DOMID_SELF;
+        xhv.index = idx;
+        xhv.value = value;
+        return HYPERVISOR_hvm_op(HVMOP_set_param, &xhv);
+}
 
 __attribute__((weak)) void do_hypervisor_callback(struct __regs *regs)
 {
