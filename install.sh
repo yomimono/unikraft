@@ -71,13 +71,12 @@ GCC_INSTALL=$(LANG=c gcc -print-search-dirs | sed -n -e 's/install: \(.*\)/\1/p'
 # get the linker script too
 cp plat/xen/x86/link64.lds ${DESTLIB}/
 
+# pkg-config
+libname=lib${NAME}
 sed \
-  -e "s!@LIBDIR@!${DESTLIB}!g" \
-  -e "s!@INCLUDEDIR@!${DESTINC}!g" \
   -e "s/@ARCH_LDFLAGS@/${ARCH_LDFLAGS}/g" \
   -e "s/@ARCH_CFLAGS@/${ARCH_CFLAGS}/g" \
   -e "s!@GCC_INSTALL@!${GCC_INSTALL}!g" \
-  cflags.in > cflags
-
-# stick a cflags file where dune will find it
-cp cflags ${DESTLIB}
+  ${libname}.pc.in > ${libname}.pc
+mkdir -p ${prefix}/lib/pkgconfig
+cp ${libname}.pc ${prefix}/lib/pkgconfig/${libname}.pc
