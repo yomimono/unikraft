@@ -1,0 +1,14 @@
+-isystem@INCLUDEDIR@ \
+-isystem@INCLUDEDIR@/plat/common/include \
+-isystem@INCLUDEDIR@/plat/xen/include \
+-isystem@INCLUDEDIR@unikraft-misc-includes \
+@ARCH_CFLAGS@ \
+-fno-builtin-printf \
+-nostdinc \
+-isystem@GCC_INSTALL@include \
+-U__linux__ -U__FreeBSD__ -U__sun__ -U__linux \
+-D__MINIOS__ -D__X86_64__
+-L@LIBDIR@/xenplat \
+-lxenplat \
+-T@LIBDIR@/xenplat/link64.lds \
+@ARCH_LDFLAGS@
