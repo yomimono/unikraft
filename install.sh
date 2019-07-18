@@ -13,6 +13,10 @@ DESTINC=${prefix}/include/${NAME}
 DESTLIB=${prefix}/lib/${NAME}
 mkdir -p ${DESTINC} ${DESTLIB}
 
+# `dune build` will fail for downstream packages if we don't have a META file
+
+touch ${DESTLIB}/META
+
 # xenplat
 ar rcs libxenplat.a \
         build/libnolibc.o \
