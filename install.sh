@@ -80,3 +80,5 @@ sed \
   ${libname}.pc.in > ${libname}.pc
 mkdir -p ${prefix}/lib/pkgconfig
 cp ${libname}.pc ${prefix}/lib/pkgconfig/${libname}.pc
+tail -2 ${libname}.pc|sed 's/Cflags: //;s/Libs: //' > cflags
+cp cflags ${DESTLIB}/cflags
