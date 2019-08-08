@@ -80,7 +80,12 @@ sed \
   ${libname}.pc.in > ${libname}.pc
 mkdir -p ${prefix}/lib/pkgconfig
 cp ${libname}.pc ${prefix}/lib/pkgconfig/${libname}.pc
-tail -2 ${libname}.pc|head -1|sed 's/Cflags: //;s!\${prefix\}!%{prefix}%!g' > cflags
 tail -1 ${libname}.pc|sed 's/Libs: //;s!\${prefix\}!%{prefix}%!g' > libs
-opam config subst xenplat cflags
-cp cflags libs ${DESTLIB}/
+tail -2 ${libname}.pc|head -1|sed 's/Cflags: //;s!\${prefix\}!%{prefix}%!g' > cflags
+# fix cflags formatting
+sed -i "s!%{prefix}%!${prefix}!g" cflags
+cat cflags | awk -v RS= -- '{ \
+        print "(", $$0, ")" \
+}' > cflags.sexp
+cp cflags.sexp ${DESTLIB}/cflags
+cp libs ${DESTLIB}/libs
