@@ -82,4 +82,5 @@ mkdir -p ${prefix}/lib/pkgconfig
 cp ${libname}.pc ${prefix}/lib/pkgconfig/${libname}.pc
 tail -2 ${libname}.pc|head -1|sed 's/Cflags: //;s!\${prefix\}!%{prefix}%!g' > cflags
 tail -1 ${libname}.pc|sed 's/Libs: //;s!\${prefix\}!%{prefix}%!g' > libs
+opam config subst xenplat cflags
 cp cflags libs ${DESTLIB}/
